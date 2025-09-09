@@ -1,29 +1,50 @@
-
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Street photography capturing quiet, beautiful moments">
-    <title>Ethan Hernandez | Photography</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ethan Hernandez — Home</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <nav class="sidebar">
-        <a href="index.html">Home</a>
-        <a href="gallery.html">Gallery</a>
-        <a href="shop.html">Shop</a>
-        <a href="#" id="cart">Cart (0)</a>
+<body data-page="home">
+  <aside class="sidebar">
+    <div class="brand">
+      <a href="index.html">Ethan<br>Hernandez</a>
+    </div>
+
+    <nav class="nav">
+      <a href="gallery.html">gallery</a>
+      <a href="shop.html">shop</a>
+      <a href="mailto:emhern29@asu.edu">contact</a>
+      <div class="nav-spacer"></div>
+      <div class="social">
+        <a href="https://www.instagram.com/thisaintnow/" target="_blank" rel="noreferrer" aria-label="Instagram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <circle cx="17.5" cy="6.5" r="1.2"></circle>
+          </svg>
+        </a>
+        <a href="mailto:emhern29@asu.edu?subject=Ask%20me%20a%20question">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M4 4h16v16H4z"></path>
+            <path d="m22 6-10 7L2 6"></path>
+          </svg>
+        </a>
+      </div>
     </nav>
-    <main>
-        <h1>Ethan Hernandez</h1>
-        <p>I chase the thrill of quiet moments—fleeting scenes that hum with life. Inspired by the streets, I capture beauty in the everyday.</p>
-        <a href="gallery.html" class="cta">Explore Gallery</a>
-    </main>
-    <footer>
-        <p>&copy; 2025 Ethan Hernandez</p>
-    </footer>
-    <script src="script.js"></script>
+  </aside>
+
+  <main class="main main--home">
+    <div id="stack" class="stack"></div>
+    <button class="pager pager--prev" aria-label="Previous image" id="prevBtn">‹</button>
+    <button class="pager pager--next" aria-label="Next image" id="nextBtn">›</button>
+    <div class="page-indicator" id="pageIndicator">1 / 11</div>
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>

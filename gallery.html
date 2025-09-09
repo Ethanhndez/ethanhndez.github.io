@@ -1,89 +1,54 @@
-
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Gallery of candid street photography">
-    <title>Gallery</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ethan Hernandez — Gallery</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav class="sidebar">
-        <a href="index.html">Home</a>
-        <a href="gallery.html">Gallery</a>
-        <a href="shop.html">Shop</a>
-        <a href="#" id="cart">Cart (0)</a>
+  <aside class="sidebar">
+    <!-- brand is now a link to index.html -->
+    <div class="brand">
+      <a href="index.html">Ethan<br>Hernandez</a>
+    </div>
+
+    <nav class="nav">
+      <a href="#" data-cat="street" class="active">street</a>
+      <a href="#" data-cat="landscape">landscape</a>
+      <a href="#" data-cat="architecture">architecture</a>
+
+      <div class="nav-spacer"></div>
+
+      <a href="shop.html">shop</a>
+      <a href="mailto:emhern29@asu.edu">contact</a>
+
+      <div class="social">
+        <a href="https://www.instagram.com/thisaintnow/" target="_blank" aria-label="Instagram" rel="noreferrer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line>
+          </svg>
+        </a>
+
+        <a href="mailto:emhern29@asu.edu?subject=Ask%20me%20a%20question">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M4 4h16v16H4z"></path>
+            <path d="m22 6-10 7L2 6"></path>
+          </svg>
+        </a>
+      </div>
     </nav>
-    <main>
-        <h1>Gallery</h1>
-        <div class="gallery">
-            <div class="gallery-item">
-                <img src="images/000006780007.JPG" alt="Street Moment 1">
-                <p>Captured in a fleeting glance</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/000011110021.JPG" alt="Street Moment 2">
-                <p>Urban rhythm</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/000011110023.JPG" alt="Street Moment 3">
-                <p>Shadows of the city</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/000014840033.jpg" alt="Street Moment 4">
-                <p>Quiet encounter</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/000014840042.JPG" alt="Street Moment 5">
-                <p>Everyday bliss</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/000186680012.jpg" alt="Street Moment 6">
-                <p>Layered lives</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/000418100004.JPG" alt="Street Moment 7">
-                <p>Satirical street</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/34960022.JPG" alt="Street Moment 8">
-                <p>Contemplative corner</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/34980011.JPG" alt="Street Moment 9">
-                <p>A quiet portrait</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/34980024.JPG" alt="Street Moment 10">
-                <p>Moody light</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/35040011.JPG" alt="Street Moment 11">
-                <p>Raw energy</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/58180009.JPG" alt="Street Moment 12">
-                <p>Fleeting thrill</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/img20240508_21423879.JPG" alt="Street Moment 13">
-                <p>Hidden beauty</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/img20240508_21562828.jpg" alt="Street Moment 14">
-                <p>City pulse</p>
-            </div>
-            <div class="gallery-item">
-                <img src="images/Scan19867.JPG" alt="Street Moment 15">
-                <p>Momentary bliss</p>
-            </div>
-        </div>
-    </main>
-    <footer>
-        <p>&copy; 2025 Ethan Hernandez</p>
-    </footer>
-    <script src="script.js"></script>
+  </aside>
+
+  <main class="main">
+    <div id="gallery" class="gallery-grid"></div>
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>

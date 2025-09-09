@@ -1,19 +1,15 @@
 {
   "name": "my-photography-site",
   "version": "1.0.0",
-  "description": "",
-  "main": "script.js",
+  "description": "Ethan Hernandez photography portfolio",
+  "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "npx live-server --port=3000",
+    "build": "node generate-manifest.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "body-parser": "^2.2.0",
-    "express": "^5.1.0",
-    "stripe": "^18.5.0"
+  "author": "Ethan Hernandez",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
   }
 }
