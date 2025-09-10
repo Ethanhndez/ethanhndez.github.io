@@ -8,6 +8,33 @@
 
   const DATA_DIR = 'data';
 
+  // Fade-in loaded state for subtle page transition
+  try { document.body.classList.add('is-loaded'); } catch {}
+  window.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add('is-loaded');
+  });
+
+  // Intercept internal navigations to fade-out before leaving
+  (function enablePageFadeOut() {
+    const isInternal = (a) => {
+      try {
+        const u = new URL(a.href, location.href);
+        return u.origin === location.origin && /\.(html?)$/i.test(u.pathname);
+      } catch { return false; }
+    };
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest && e.target.closest('a[href]');
+      if (!a) return;
+      if (a.hasAttribute('data-cat')) return; // gallery category links stay on-page
+      if (a.target === '_blank') return;
+      if (!isInternal(a)) return;
+      e.preventDefault();
+      document.body.classList.add('is-fading');
+      const href = a.getAttribute('href');
+      setTimeout(() => { location.href = href; }, 160);
+    });
+  })();
+
   // Detect which page we’re on
   const page = document.body.dataset.page || (
     // fallback: look for elements that only exist on one page
@@ -101,30 +128,50 @@
 
     // Category links on the sidebar
     const catLinks = $$('a[data-cat]');
-    let currentCat = (catLinks.find(a => a.classList.contains('active'))?.dataset.cat) || 'street';
+    const cats = new Set(catLinks.map(a => a.dataset.cat));
+
+    const getCatFromURL = () => {
+      const hash = (location.hash || '').replace(/^#/, '');
+      const sp = new URLSearchParams(location.search);
+      const qp = sp.get('cat');
+      if (qp && cats.has(qp)) return qp;
+      if (hash && cats.has(hash)) return hash;
+      return null;
+    };
+
+    let currentCat = getCatFromURL() || (catLinks.find(a => a.classList.contains('active'))?.dataset.cat) || 'street';
 
     const setActive = (cat) => {
       catLinks.forEach(a => a.classList.toggle('active', a.dataset.cat === cat));
     };
 
-    const loadCategory = async (cat) => {
+    const loadCategory = async (cat, opts = { replace: false }) => {
       currentCat = cat;
       setActive(cat);
       grid.innerHTML = ''; // clear
 
       const paths = await fetchJSON(`${DATA_DIR}/${cat}.json`);
       grid.innerHTML = paths.map(p => (
-        `<a href="${p}" target="_blank" rel="noopener">
+        `<a href="${p}">
            <img data-src="${p}" alt="" loading="lazy" decoding="async">
          </a>`
       )).join('');
 
       // Lazy + masonry span calculation
       prepareMasonry(grid);
+
+      // Wire up lightbox on click
+      enableLightbox(grid, paths);
+
+      // Update URL
+      const url = new URL(location.href);
+      url.hash = `#${cat}`;
+      if (opts.replace) history.replaceState({ cat }, '', url);
+      else history.pushState({ cat }, '', url);
     };
 
     // First load
-    await loadCategory(currentCat);
+    await loadCategory(currentCat, { replace: true });
 
     // Handle clicks
     catLinks.forEach(a => {
@@ -133,6 +180,12 @@
         const cat = a.dataset.cat;
         if (cat && cat !== currentCat) loadCategory(cat);
       });
+    });
+
+    // Back/forward support
+    window.addEventListener('popstate', () => {
+      const cat = getCatFromURL() || 'street';
+      if (cat !== currentCat) loadCategory(cat, { replace: true });
     });
   }
 
@@ -201,5 +254,69 @@
       const rowSpan = Math.ceil((imgH + gap) / (rowH + gap));
       item.style.gridRowEnd = `span ${rowSpan}`;
     }
+  }
+
+  /* -------------------------------------------------------
+     Lightbox
+  ------------------------------------------------------- */
+  function ensureLightboxRoot() {
+    let lb = $('#lightbox');
+    if (lb) return lb;
+    lb = document.createElement('div');
+    lb.id = 'lightbox';
+    lb.className = 'lightbox';
+    lb.innerHTML = `
+      <button class="lightbox__close" aria-label="Close">✕</button>
+      <button class="lightbox__prev" aria-label="Previous">‹</button>
+      <img class="lightbox__img" alt="" />
+      <button class="lightbox__next" aria-label="Next">›</button>
+      <div class="lightbox__counter" aria-live="polite"></div>
+    `;
+    document.body.appendChild(lb);
+    return lb;
+  }
+
+  function enableLightbox(grid, paths) {
+    const items = $$('a', grid);
+    const lb = ensureLightboxRoot();
+    const img = $('.lightbox__img', lb);
+    const btnPrev = $('.lightbox__prev', lb);
+    const btnNext = $('.lightbox__next', lb);
+    const btnClose = $('.lightbox__close', lb);
+    const counter = $('.lightbox__counter', lb);
+    let index = 0;
+
+    const open = (i) => {
+      index = clamp(i, 0, paths.length - 1);
+      update();
+      lb.classList.add('is-open');
+    };
+    const close = () => { lb.classList.remove('is-open'); };
+    const prev = () => open(index - 1);
+    const next = () => open(index + 1);
+    const update = () => {
+      img.src = paths[index];
+      counter.textContent = `${index + 1} / ${paths.length}`;
+    };
+
+    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+    items.forEach((a, i) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        open(i);
+      });
+    });
+
+    btnPrev.addEventListener('click', prev);
+    btnNext.addEventListener('click', next);
+    btnClose.addEventListener('click', close);
+    lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+    window.addEventListener('keydown', (e) => {
+      if (!lb.classList.contains('is-open')) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
+    });
   }
 })();
