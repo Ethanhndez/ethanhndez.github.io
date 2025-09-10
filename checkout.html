@@ -1,36 +1,37 @@
 
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Secure checkout for photography books and prints">
-    <title>Checkout</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://js.stripe.com/v3/"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Checkout — Ethan Hernandez" />
+  <title>Checkout — Ethan Hernandez</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <nav class="sidebar">
-        <a href="index.html">Home</a>
-        <a href="gallery.html">Gallery</a>
-        <a href="shop.html">Shop</a>
-        <a href="#" id="cart">Cart (0)</a>
+  <aside class="sidebar">
+    <div class="brand">
+      <a href="index.html">Ethan<br>Hernandez</a>
+    </div>
+    <nav class="nav">
+      <a href="shop.html">← back to shop</a>
+      <div class="nav-spacer"></div>
+      <a href="checkout.html" id="cartLink">cart (0)</a>
     </nav>
-    <main>
-        <h1>Checkout</h1>
-        <div id="cart-items"></div>
-        <p>Total: $<span id="total">0</span></p>
-        <form id="payment-form">
-            <input type="text" id="card-number" placeholder="Card Number">
-            <input type="text" id="card-expiry" placeholder="MM/YY">
-            <input type="text" id="card-cvc" placeholder="CVC">
-            <button type="submit">Pay Now</button>
-        </form>
-    </main>
-    <footer>
-        <p>&copy; 2025 Ethan Hernandez</p>
-    </footer>
-    <script src="script.js"></script>
+  </aside>
+
+  <main class="main main--checkout" id="checkoutRoot">
+    <h1>Checkout</h1>
+    <div class="checkout-list" id="checkoutItems"></div>
+    <div class="checkout-total">Total: <strong id="checkoutTotal">$0.00</strong></div>
+    <div style="margin-top:16px; display:flex; gap:10px;">
+      <button id="placeOrder" class="btn-primary">email order</button>
+      <button id="clearCart">clear cart</button>
+    </div>
+    <p style="margin-top:12px;color:#666;font-size:12px;">Full checkout (Stripe) can be wired later; this button drafts an email with your order.</p>
+  </main>
+
+  <script src="script.js"></script>
+  <script type="module" src="shop.js"></script>
 </body>
 </html>

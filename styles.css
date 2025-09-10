@@ -107,6 +107,89 @@ body.is-fading { opacity: 0; }
 /* ---------- Main / Gallery ---------- */
 .main { margin-left: var(--side); padding: 24px; }
 
+/* ---------- Contact ---------- */
+.main--contact { padding-top: 36px; }
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 640px) minmax(280px, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+/* ---------- Shop ---------- */
+.main--shop { padding-top: 36px; }
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(380px, 1fr));
+  gap: 80px;                    /* generous breathing room */
+  max-width: 1120px;            /* center like Cat’s */
+  margin: 24px auto 100px;
+}
+.shop-card { text-align: center; }
+.shop-card__img { display: block; border: 6px solid #000; background: #fff; }
+.shop-card__img img { width: 100%; height: auto; display: block; }
+.shop-card__title { margin: 16px 0 6px; font-size: 18px; letter-spacing: .04em; font-weight: 500; }
+.shop-card__title a { color: var(--text); text-decoration: none; }
+.shop-card__title a:visited { color: var(--text); }
+.shop-card__title a:hover { text-decoration: underline; }
+.shop-card__price { color: #444; font-size: 14px; }
+
+.main--product { padding-top: 36px; }
+.product-layout {
+  display: grid;
+  grid-template-columns: minmax(420px, 680px) 1fr;
+  gap: 56px;
+  max-width: 1120px;
+  margin: 0 auto 80px;
+  align-items: start;        /* prevent grid auto-stretching causing bottom strip */
+}
+.product-figure { margin: 0; border: 6px solid #000; background: #000; line-height: 0; display: block; overflow: hidden; }
+.product-figure img { width: 100%; height: auto; display: block; vertical-align: top; }
+.product-info h1 { margin: 0 0 8px; font-size: 30px; letter-spacing: .10em; text-transform: none; font-weight: 600; }
+.product-price { margin-bottom: 16px; font-size: 18px; }
+.product-desc { color: #222; margin-bottom: 14px; line-height: 1.9; letter-spacing: .03em; max-width: 50ch; }
+.qty { display: block; font-size: 12px; color: #666; margin-bottom: 10px; }
+.qty input { display: block; margin-top: 6px; width: 80px; padding: 6px 8px; background: #f5f5f5; }
+.btn-primary { background: rgba(243, 194, 0, 0.08); border: 2px solid #f3c200; padding: 12px 22px; cursor: pointer; letter-spacing: .2em; text-transform: lowercase; }
+.btn-primary:hover { background: rgba(243, 194, 0, 0.18); }
+.thumbs { margin-top: 18px; display: flex; gap: 8px; flex-wrap: wrap; }
+.thumb { border: 1px solid #ddd; padding: 0; background: #fff; cursor: pointer; }
+.thumb img { display: block; width: 64px; height: 64px; object-fit: cover; }
+.thumb.is-active { outline: 2px solid #222; }
+
+@media (max-width: 980px) {
+  .shop-grid { grid-template-columns: 1fr; gap: 36px; max-width: 720px; }
+  .product-layout { grid-template-columns: 1fr; }
+}
+
+/* ---------- Checkout ---------- */
+.main--checkout { padding-top: 36px; }
+.checkout-list { margin-bottom: 16px; }
+.co-item { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.co-title { }
+.co-qty { color: #666; }
+.co-price { }
+.contact-figure {
+  margin: 0;
+  padding: 0;
+  border: 6px solid #000;            /* bold frame similar to reference */
+  outline: 10px solid transparent;   /* subtle outer inset space */
+}
+.contact-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.contact-copy { font-size: 15px; line-height: 1.9; letter-spacing: 0.04em; }
+.contact-line { margin: 0 0 10px 0; }
+.contact-rule { border: none; border-top: 1px solid var(--rule); margin: 24px 0; }
+.contact-blurb { color: #222; }
+
+@media (max-width: 980px) {
+  .contact-grid { grid-template-columns: 1fr; gap: 28px; }
+  .contact-figure { border-width: 4px; }
+}
+
 /* CSS Grid Masonry */
 .gallery-grid {
   display: grid;
@@ -269,4 +352,107 @@ body.is-fading { opacity: 0; }
   transform: translateX(-50%);
   font-size: 12px;
   color: #ddd;
+}
+
+/* ---------- Focus (enlarged) view on Gallery ---------- */
+.focus-view {
+  position: relative;
+  min-height: calc(100vh - 48px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.focus-view img {
+  max-width: calc(100vw - var(--side) - 80px);
+  max-height: calc(100vh - 140px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+.focus__btn {
+  position: absolute;
+  border: none;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  opacity: 0;                 /* reveal on hover to mimic subtle UI */
+  transition: opacity .15s ease, background .15s ease;
+}
+.focus__btn:hover { background: rgba(0,0,0,0.65); }
+.focus-view:hover .focus__btn { opacity: 1; }
+.focus__prev { left: 24px; top: 50%; transform: translateY(-50%); }
+.focus__next { right: 24px; top: 50%; transform: translateY(-50%); }
+.focus__up   { bottom: 24px; left: 24px; opacity: .9; }
+.focus__counter {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  font-size: 12px;
+  color: #666;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid #e7e7e7;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+/* Hover zones (left/center/right) to mimic Cat’s UI */
+.focus-zones {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr minmax(120px, 220px) 1fr; /* bigger left/right, narrow center */
+  pointer-events: none; /* enable only on children */
+}
+.focus-zones .zone {
+  pointer-events: auto;
+  background: transparent;
+  border: 0;
+  position: relative;
+  cursor: pointer;
+}
+.focus-zones .zone::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  color: #fff;
+  background: rgba(0,0,0,0.45);
+  opacity: 0;
+  transition: opacity .15s ease, background .15s ease;
+}
+.focus-zones .zone:hover::after { opacity: 1; background: rgba(0,0,0,0.65); }
+.focus-zones .zone--left::after   { content: '‹'; }
+.focus-zones .zone--right::after  { content: '›'; }
+.focus-zones .zone--center::after { content: '↑'; }
+
+/* On desktop, prefer zones; keep buttons for accessibility and touch */
+@media (min-width: 801px) {
+  .focus__btn { display: none; }
+}
+
+.focus__caption {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  color: #333;
+  font-size: 13px;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid #e7e7e7;
+  padding: 6px 8px;
+  border-radius: 6px;
+  max-width: min(520px, 60ch);
 }

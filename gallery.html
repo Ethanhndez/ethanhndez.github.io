@@ -24,7 +24,7 @@
       <div class="nav-spacer"></div>
 
       <a href="shop.html">shop</a>
-      <a href="mailto:emhern29@asu.edu">contact</a>
+      <a href="contact.html">contact</a>
 
       <div class="social">
         <a href="https://www.instagram.com/thisaintnow/" target="_blank" aria-label="Instagram" rel="noreferrer">
@@ -46,7 +46,23 @@
   </aside>
 
   <main class="main">
-    <div id="gallery" class="gallery-grid"></div>
+    <!-- Focus (enlarged) view; shown first -->
+    <section id="galleryFocus" class="focus-view" aria-label="Focused image view" hidden>
+      <div class="focus-zones" aria-hidden="true">
+        <button class="zone zone--left"  aria-label="Previous image"></button>
+        <button class="zone zone--center" aria-label="Show thumbnails"></button>
+        <button class="zone zone--right" aria-label="Next image"></button>
+      </div>
+      <button class="focus__btn focus__up" aria-label="Show thumbnails" title="Show thumbnails">↑</button>
+      <button class="focus__btn focus__prev" aria-label="Previous image">‹</button>
+      <img id="focusImg" alt="" />
+      <button class="focus__btn focus__next" aria-label="Next image">›</button>
+      <div class="focus__counter" aria-live="polite"></div>
+      <div class="focus__caption" id="focusCaption"></div>
+    </section>
+
+    <!-- Thumbnails grid -->
+    <div id="gallery" class="gallery-grid" aria-label="Thumbnails grid"></div>
   </main>
 
   <script src="script.js"></script>

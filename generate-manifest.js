@@ -54,19 +54,17 @@ function buildCategoryList(cat) {
 }
 
 /**
- * Build the "home" list from images placed directly under /images
- * (not in subfolders).
+ * Build the "home" list from images under /images/home
  */
 function buildHomeList() {
-  const entries = fs.readdirSync(SRC, { withFileTypes: true });
-  const files = entries
-    .filter(d => d.isFile() && exts.has(path.extname(d.name)))
-    .map(d => d.name);
+  const homeDir = path.join(SRC, 'home');
+  if (!fs.existsSync(homeDir)) return [];
+  const files = fs
+    .readdirSync(homeDir)
+    .filter(f => exts.has(path.extname(f)))
+    .sort((a, b) => getIndexFromName(a) - getIndexFromName(b));
 
-  files.sort((a, b) => getIndexFromName(a) - getIndexFromName(b));
-
-  // you said you keep 11 here; we’ll include them all (or slice(0, 11) if you want)
-  return files.map(f => `images/${encodeURIComponent(f)}`);
+  return files.map(f => `images/home/${encodeURIComponent(f)}`);
 }
 
 // -------- build & write files --------

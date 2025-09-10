@@ -25,13 +25,17 @@
     document.addEventListener('click', (e) => {
       const a = e.target.closest && e.target.closest('a[href]');
       if (!a) return;
+      // Respect new-tab/middle-click/modified clicks
+      if (e.defaultPrevented) return;
+      if (e.button !== 0) return; // only left click
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       if (a.hasAttribute('data-cat')) return; // gallery category links stay on-page
       if (a.target === '_blank') return;
       if (!isInternal(a)) return;
       e.preventDefault();
       document.body.classList.add('is-fading');
-      const href = a.getAttribute('href');
-      setTimeout(() => { location.href = href; }, 160);
+      const href = a.href; // absolute
+      setTimeout(() => { location.href = href; }, 140);
     });
   })();
 
@@ -124,6 +128,12 @@
   ------------------------------------------------------- */
   async function initGallery() {
     const grid = $('#gallery');
+    const focus = $('#galleryFocus');
+    const focusImg = $('#focusImg');
+    const btnPrev = focus?.querySelector('.focus__prev');
+    const btnNext = focus?.querySelector('.focus__next');
+    const btnUp   = focus?.querySelector('.focus__up');
+    const counter = focus?.querySelector('.focus__counter');
     if (!grid) return;
 
     // Category links on the sidebar
@@ -150,18 +160,21 @@
       setActive(cat);
       grid.innerHTML = ''; // clear
 
-      const paths = await fetchJSON(`${DATA_DIR}/${cat}.json`);
-      grid.innerHTML = paths.map(p => (
-        `<a href="${p}">
-           <img data-src="${p}" alt="" loading="lazy" decoding="async">
+      const raw = await fetchJSON(`${DATA_DIR}/${cat}.json`);
+      // Normalize to objects: { src, caption? }
+      const items = raw.map(entry => (typeof entry === 'string' ? { src: entry } : entry));
+
+      grid.innerHTML = items.map(it => (
+        `<a href="#" data-src="${it.src}">
+           <img src="${it.src}" alt="" loading="eager" decoding="async">
          </a>`
       )).join('');
 
       // Lazy + masonry span calculation
       prepareMasonry(grid);
 
-      // Wire up lightbox on click
-      enableLightbox(grid, paths);
+      // Focus viewer state
+      enableFocusViewer(items, cat);
 
       // Update URL
       const url = new URL(location.href);
@@ -225,10 +238,12 @@
     const items = $$('a', grid);
     const imgs  = $$('img', grid);
 
-    const io = makeImageObserver((img) => {
-      spanItem(img.closest('a'));
+    // When images load (or if already cached), compute their row spans
+    imgs.forEach((img) => {
+      const handler = () => spanItem(img.closest('a'));
+      if (img.complete) handler();
+      else img.addEventListener('load', handler, { once: true });
     });
-    imgs.forEach(img => io.observe(img));
 
     // Recalc on resize (debounced)
     let resizeTimer;
@@ -237,86 +252,116 @@
       resizeTimer = setTimeout(() => items.forEach(spanItem), 100);
     });
 
-    // Initial pass in case some are already cached
+    // Initial pass (in case some have sizes immediately)
     items.forEach(spanItem);
 
     function spanItem(item) {
       const img = $('img', item);
-      if (!img || img.dataset.src) return; // only span once loaded
+      if (!img) return;
 
-      // CSS grid auto rows + gap
       const styles = getComputedStyle(grid);
       const rowH   = parseFloat(styles.getPropertyValue('grid-auto-rows')) || 6;
       const gap    = parseFloat(styles.getPropertyValue('row-gap')) || 0;
-
-      // We want the *rendered* height of the image in the current column width
       const imgH = img.getBoundingClientRect().height;
+      if (imgH === 0) return; // wait until it has size
       const rowSpan = Math.ceil((imgH + gap) / (rowH + gap));
       item.style.gridRowEnd = `span ${rowSpan}`;
     }
   }
 
-  /* -------------------------------------------------------
-     Lightbox
-  ------------------------------------------------------- */
-  function ensureLightboxRoot() {
-    let lb = $('#lightbox');
-    if (lb) return lb;
-    lb = document.createElement('div');
-    lb.id = 'lightbox';
-    lb.className = 'lightbox';
-    lb.innerHTML = `
-      <button class="lightbox__close" aria-label="Close">✕</button>
-      <button class="lightbox__prev" aria-label="Previous">‹</button>
-      <img class="lightbox__img" alt="" />
-      <button class="lightbox__next" aria-label="Next">›</button>
-      <div class="lightbox__counter" aria-live="polite"></div>
-    `;
-    document.body.appendChild(lb);
-    return lb;
+  // Recompute spans for all items (use when grid becomes visible)
+  function recomputeMasonry(grid) {
+    const items = $$('a', grid);
+    const styles = getComputedStyle(grid);
+    const rowH   = parseFloat(styles.getPropertyValue('grid-auto-rows')) || 6;
+    const gap    = parseFloat(styles.getPropertyValue('row-gap')) || 0;
+    items.forEach((item) => {
+      const img = $('img', item);
+      if (!img) return;
+      const imgH = img.getBoundingClientRect().height;
+      if (!imgH) return;
+      const rowSpan = Math.ceil((imgH + gap) / (rowH + gap));
+      item.style.gridRowEnd = `span ${rowSpan}`;
+    });
   }
 
-  function enableLightbox(grid, paths) {
-    const items = $$('a', grid);
-    const lb = ensureLightboxRoot();
-    const img = $('.lightbox__img', lb);
-    const btnPrev = $('.lightbox__prev', lb);
-    const btnNext = $('.lightbox__next', lb);
-    const btnClose = $('.lightbox__close', lb);
-    const counter = $('.lightbox__counter', lb);
-    let index = 0;
+  /* -------------------------------------------------------
+     Focus viewer (enlarged first image, grid toggle)
+  ------------------------------------------------------- */
+  function enableFocusViewer(items, cat) {
+    const grid = $('#gallery');
+    const focus = $('#galleryFocus');
+    const focusImg = $('#focusImg');
+    const btnPrev = focus.querySelector('.focus__prev');
+    const btnNext = focus.querySelector('.focus__next');
+    const btnUp   = focus.querySelector('.focus__up');
+    const counter = focus.querySelector('.focus__counter');
+    const zoneLeft   = focus.querySelector('.zone--left');
+    const zoneRight  = focus.querySelector('.zone--right');
+    const zoneCenter = focus.querySelector('.zone--center');
+    const focusCaption = $('#focusCaption');
 
-    const open = (i) => {
-      index = clamp(i, 0, paths.length - 1);
-      update();
-      lb.classList.add('is-open');
+    // Index deep-linking via ?i= and persistence per category
+    const url = new URL(location.href);
+    const paramI = parseInt(url.searchParams.get('i') || '', 10);
+    const savedKey = `lastIndex:${cat}`;
+    const saved = parseInt(sessionStorage.getItem(savedKey) || '', 10);
+    let index = Number.isFinite(paramI) ? Math.max(0, Math.min(items.length - 1, paramI))
+              : (Number.isFinite(saved) ? Math.max(0, Math.min(items.length - 1, saved)) : 0);
+
+    const mod = (n, m) => ((n % m) + m) % m; // wrap-around
+
+    const showFocus = (i) => {
+      index = mod(i, items.length);
+      const { src, caption } = items[index];
+      focusImg.src = src;
+      counter.textContent = `${index + 1} / ${items.length}`;
+      focusCaption.textContent = caption || '';
+      focus.hidden = false;
+      grid.style.display = 'none';
+      // update URL param and save
+      const u = new URL(location.href);
+      u.searchParams.set('i', String(index));
+      history.replaceState({}, '', u);
+      sessionStorage.setItem(savedKey, String(index));
     };
-    const close = () => { lb.classList.remove('is-open'); };
-    const prev = () => open(index - 1);
-    const next = () => open(index + 1);
-    const update = () => {
-      img.src = paths[index];
-      counter.textContent = `${index + 1} / ${paths.length}`;
+    const showGrid = () => {
+      grid.style.display = '';
+      focus.hidden = true;
+      // remove index param when showing grid
+      const u = new URL(location.href);
+      u.searchParams.delete('i');
+      history.replaceState({}, '', u);
+      // Recompute spans now that grid is visible
+      requestAnimationFrame(() => recomputeMasonry(grid));
     };
+    const prev = () => showFocus(index - 1);
+    const next = () => showFocus(index + 1);
 
-    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
-
-    items.forEach((a, i) => {
+    // Thumbnail clicks -> focus
+    $$('#gallery a').forEach((a, i) => {
       a.addEventListener('click', (e) => {
         e.preventDefault();
-        open(i);
+        showFocus(i);
       });
     });
 
-    btnPrev.addEventListener('click', prev);
-    btnNext.addEventListener('click', next);
-    btnClose.addEventListener('click', close);
-    lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+    btnPrev.onclick = prev;
+    btnNext.onclick = next;
+    btnUp.onclick   = showGrid;
+    zoneLeft.onclick = prev;
+    zoneRight.onclick = next;
+    zoneCenter.onclick = showGrid;
+
+    // Keyboard navigation in focus mode
     window.addEventListener('keydown', (e) => {
-      if (!lb.classList.contains('is-open')) return;
-      if (e.key === 'Escape') close();
-      if (e.key === 'ArrowLeft') prev();
+      if (focus.hidden) return;
+      if (e.key === 'ArrowLeft')  prev();
       if (e.key === 'ArrowRight') next();
+      if (e.key === 'ArrowUp')    showGrid();
     });
+
+    // Start enlarged at deep-linked/saved index
+    showFocus(index);
   }
 })();

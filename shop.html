@@ -1,47 +1,35 @@
 
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Shop books and prints of candid street photography">
-    <title>Shop</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Shop books and prints by Ethan Hernandez" />
+  <title>Ethan Hernandez — Shop</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav class="sidebar">
-        <a href="index.html">Home</a>
-        <a href="gallery.html">Gallery</a>
-        <a href="shop.html">Shop</a>
-        <a href="#" id="cart">Cart (0)</a>
+  <aside class="sidebar">
+    <div class="brand">
+      <a href="index.html">Ethan<br>Hernandez</a>
+    </div>
+    <nav class="nav">
+      <a href="gallery.html">gallery</a>
+      <a href="shop.html" class="active">shop</a>
+      <a href="contact.html">contact</a>
+      <div class="nav-spacer"></div>
+      <a href="checkout.html" id="cartLink">cart (0)</a>
     </nav>
-    <main>
-        <h1>Books & Prints</h1>
-        <div class="products">
-            <div class="product">
-                <img src="images/000006780007.JPG" alt="Book Cover">
-                <h2>Whispers of the Street</h2>
-                <p>A book of candid moments from Europe. $50.00</p>
-                <button data-id="book1" data-price="50">Add to Cart</button>
-            </div>
-            <div class="product">
-                <img src="images/000011110021.JPG" alt="Print">
-                <h2>Urban Echo Print</h2>
-                <p>Limited edition, signed. $30.00</p>
-                <button data-id="print1" data-price="30">Add to Cart</button>
-            </div>
-            <div class="product">
-                <img src="images/000186680012.jpg" alt="Book 2 Cover">
-                <h2>Quiet Thrills</h2>
-                <p>Everyday beauty in print. $45.00</p>
-                <button data-id="book2" data-price="45">Add to Cart</button>
-            </div>
-        </div>
-    </main>
-    <footer>
-        <p>&copy; 2025 Ethan Hernandez</p>
-    </footer>
-    <script src="script.js"></script>
+  </aside>
+
+  <main class="main main--shop">
+    <section class="shop-grid" id="shopGrid" aria-live="polite"></section>
+  </main>
+
+  <script src="script.js"></script>
+  <script type="module" src="shop.js"></script>
 </body>
 </html>
